@@ -46,7 +46,7 @@ export const ServicesList = ({ onSelect }: ServicesListProps) => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
             <span className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2 block">Nossos Serviços</span>
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-3 transition-colors tracking-tight">
+            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-3 transition-colors tracking-tight">
               Cuidado profissional para o seu carro
             </h2>
             <p className="text-slate-500 dark:text-slate-400 max-w-xl transition-colors">
@@ -88,7 +88,7 @@ export const ServicesList = ({ onSelect }: ServicesListProps) => {
                     {svc.category}
                   </span>
 
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">
                     {svc.name}
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed flex-1 transition-colors mb-6">

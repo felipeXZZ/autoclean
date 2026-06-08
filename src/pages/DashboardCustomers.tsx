@@ -31,7 +31,7 @@ export const DashboardCustomers = () => {
     <div>
       <div className="mb-6">
         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-        <h1 className="text-2xl font-black text-white">Clientes</h1>
+        <h1 className="text-2xl font-extrabold text-white">Clientes</h1>
       </div>
 
       {/* Stats */}

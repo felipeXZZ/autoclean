@@ -43,7 +43,7 @@ export const FinalCTA = () => {
           Comece agora — é grátis
         </span>
 
-        <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-[1.05] tracking-tight">
+        <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-[1.05] tracking-tight">
           Sua estética merece uma<br />
           <span className="bg-gradient-to-r from-blue-400 to-violet-500 bg-clip-text text-transparent">
             presença digital profissional

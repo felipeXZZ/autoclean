@@ -61,7 +61,7 @@ export function CompanyCard({ company }: Props) {
       <div className="flex-1 flex flex-col gap-2 p-4">
         <div>
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-black text-white text-sm leading-snug group-hover:text-blue-400 transition-colors line-clamp-1">
+            <h3 className="font-extrabold text-white text-sm leading-snug group-hover:text-blue-400 transition-colors line-clamp-1">
               {company.name}
             </h3>
             {company.is_verified && (

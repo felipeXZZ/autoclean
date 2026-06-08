@@ -74,7 +74,7 @@ export const Home = () => {
               <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">Marketplace de Estéticas Automotivas</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.6rem] font-black leading-[1.08] mb-5 tracking-tight text-white">
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.6rem] font-extrabold leading-[1.08] mb-5 tracking-tight text-white">
               Agende com estéticas<br />
               <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">
                 automotivas perto de você
@@ -164,7 +164,7 @@ export const Home = () => {
           <div className="flex items-end justify-between mb-8">
             <div>
               <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Recomendado para você</p>
-              <h2 className="text-2xl font-black text-white">Estéticas em destaque</h2>
+              <h2 className="text-2xl font-extrabold text-white">Estéticas em destaque</h2>
             </div>
             <Link to="/buscar" className="text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
               Ver todas <ArrowRight className="w-4 h-4" />
@@ -204,7 +204,7 @@ export const Home = () => {
           <div className="max-w-7xl mx-auto">
             <div className="mb-8">
               <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Por localização</p>
-              <h2 className="text-2xl font-black text-white">Encontre estéticas na sua cidade</h2>
+              <h2 className="text-2xl font-extrabold text-white">Encontre estéticas na sua cidade</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {cities.map(({ city, state, count }) => (
@@ -230,7 +230,7 @@ export const Home = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Simples assim</p>
-            <h2 className="text-3xl font-black text-white">Agende do seu jeito, em qualquer lugar</h2>
+            <h2 className="text-3xl font-extrabold text-white">Agende do seu jeito, em qualquer lugar</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -263,7 +263,7 @@ export const Home = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Para donos de estética</p>
-              <h2 className="text-3xl lg:text-4xl font-black text-white mb-5 leading-tight">
+              <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-5 leading-tight">
                 Transforme sua estética automotiva com o AutoClean
               </h2>
               <p className="text-slate-400 leading-relaxed mb-8">

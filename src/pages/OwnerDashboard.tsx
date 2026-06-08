@@ -266,7 +266,7 @@ export const OwnerDashboard = ({ user }: Props) => {
         <div className="flex items-center justify-between mb-8 pt-6">
           <div>
             <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel da empresa</p>
-            <h1 className="text-3xl font-black text-white">{company.name}</h1>
+            <h1 className="text-3xl font-extrabold text-white">{company.name}</h1>
           </div>
           <Link
             to={`/empresa/${company.slug}`}
@@ -314,7 +314,7 @@ export const OwnerDashboard = ({ user }: Props) => {
 
                 {/* Today's appointments */}
                 <div className="p-6 rounded-2xl mb-6" style={cardStyle}>
-                  <h3 className="text-lg font-black text-white mb-4">Agendamentos de hoje</h3>
+                  <h3 className="text-lg font-extrabold text-white mb-4">Agendamentos de hoje</h3>
                   {todayAppts.length === 0 ? (
                     <p className="text-slate-500 text-sm">Nenhum agendamento para hoje.</p>
                   ) : (
@@ -456,7 +456,7 @@ export const OwnerDashboard = ({ user }: Props) => {
                     style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
                     <div className="w-full max-w-md p-6 rounded-3xl" style={cardStyle}>
                       <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-xl font-black text-white">
+                        <h3 className="text-xl font-extrabold text-white">
                           {svcForm.id ? 'Editar serviço' : 'Novo serviço'}
                         </h3>
                         <button onClick={() => setSvcForm(null)} className="text-slate-500 hover:text-white transition-colors">
@@ -525,7 +525,7 @@ export const OwnerDashboard = ({ user }: Props) => {
                 )}
 
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-white">Serviços</h2>
+                  <h2 className="text-xl font-extrabold text-white">Serviços</h2>
                   <button
                     onClick={openNewService}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all"
@@ -581,7 +581,7 @@ export const OwnerDashboard = ({ user }: Props) => {
             {tab === 'hours' && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-white">Horários de funcionamento</h2>
+                  <h2 className="text-xl font-extrabold text-white">Horários de funcionamento</h2>
                   <button
                     onClick={saveHours}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all"
@@ -646,7 +646,7 @@ export const OwnerDashboard = ({ user }: Props) => {
             {tab === 'company' && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-white">Perfil da empresa</h2>
+                  <h2 className="text-xl font-extrabold text-white">Perfil da empresa</h2>
                   {!companyEditing ? (
                     <button
                       onClick={() => setCompanyEditing(true)}

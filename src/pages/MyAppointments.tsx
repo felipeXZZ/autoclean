@@ -23,7 +23,7 @@ export const MyAppointments = ({ user }: MyAppointmentsProps) => {
           <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto">
             <User className="w-10 h-10 text-blue-600" />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white">Acesse sua conta</h2>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Acesse sua conta</h2>
           <p className="text-slate-500 dark:text-slate-400">Você precisa estar logado para ver seus agendamentos.</p>
           <a href="/login" className="block bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-blue-700 transition-all">
             Fazer Login
@@ -56,7 +56,7 @@ export const MyAppointments = ({ user }: MyAppointmentsProps) => {
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Meus Agendamentos</h1>
+            <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Meus Agendamentos</h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Acompanhe e gerencie seus serviços.</p>
           </div>
           {!loading && (

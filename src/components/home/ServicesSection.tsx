@@ -52,7 +52,7 @@ export const ServicesSection = () => (
         transition={{ duration: 0.6 }}
         className="text-center mb-16">
         <span className="text-xs font-black text-blue-500 uppercase tracking-widest mb-3 block">Recursos</span>
-        <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
+        <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight">
           Tudo que sua estética precisa<br />
           <span className="bg-gradient-to-r from-blue-400 to-violet-500 bg-clip-text text-transparent">
             em uma só plataforma
@@ -82,7 +82,7 @@ export const ServicesSection = () => (
               style={{ background: `${f.color}15` }}>
               <f.icon className="w-6 h-6" style={{ color: f.color }} />
             </div>
-            <h3 className="text-lg font-black text-white mb-2">{f.title}</h3>
+            <h3 className="text-lg font-extrabold text-white mb-2">{f.title}</h3>
             <p className="text-slate-400 text-sm leading-relaxed">{f.description}</p>
           </motion.div>
         ))}

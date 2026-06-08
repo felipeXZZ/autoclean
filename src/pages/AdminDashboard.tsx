@@ -393,7 +393,7 @@ export const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Plataforma</p>
-          <h1 className="text-3xl font-black text-white">Painel Administrativo</h1>
+          <h1 className="text-3xl font-extrabold text-white">Painel Administrativo</h1>
           <p className="text-slate-500 mt-1">Gestão completa da plataforma AutoClean.</p>
         </div>
 
@@ -443,7 +443,7 @@ export const AdminDashboard = () => {
                 </div>
 
                 <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <h2 className="text-sm font-black text-white mb-4 flex items-center gap-2">
+                  <h2 className="text-sm font-extrabold text-white mb-4 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-blue-400" /> Agendamentos recentes
                   </h2>
                   <AppointmentsTab />
@@ -453,7 +453,7 @@ export const AdminDashboard = () => {
 
             {activeTab === 'companies' && (
               <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <h2 className="text-sm font-black text-white mb-4 flex items-center gap-2">
+                <h2 className="text-sm font-extrabold text-white mb-4 flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-blue-400" /> Empresas cadastradas
                 </h2>
                 <CompaniesTab />
@@ -462,7 +462,7 @@ export const AdminDashboard = () => {
 
             {activeTab === 'appointments' && (
               <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <h2 className="text-sm font-black text-white mb-4 flex items-center gap-2">
+                <h2 className="text-sm font-extrabold text-white mb-4 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-blue-400" /> Todos os agendamentos
                 </h2>
                 <AppointmentsTab />

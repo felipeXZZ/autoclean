@@ -86,7 +86,7 @@ export const DashboardAppointments = () => {
     <div>
       <div className="mb-6">
         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-        <h1 className="text-2xl font-black text-white">Agendamentos</h1>
+        <h1 className="text-2xl font-extrabold text-white">Agendamentos</h1>
       </div>
 
       {/* Filters */}

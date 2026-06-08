@@ -80,7 +80,7 @@ export const CompanyPage = () => {
       <div className="min-h-screen flex items-center justify-center text-center px-4" style={{ background: '#060b18' }}>
         <div>
           <p className="text-5xl mb-4">🚗</p>
-          <h1 className="text-2xl font-black text-white mb-2">Empresa não encontrada</h1>
+          <h1 className="text-2xl font-extrabold text-white mb-2">Empresa não encontrada</h1>
           <p className="text-slate-400 mb-6">Este endereço não existe ou foi desativado.</p>
           <Link to="/" className="text-blue-400 hover:text-blue-300 font-bold transition-colors">
             ← Voltar ao início
@@ -127,7 +127,7 @@ export const CompanyPage = () => {
                 : <Building2 className="w-10 h-10 text-white" />}
             </div>
 
-            <h1 className="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">{company.name}</h1>
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-3 tracking-tight">{company.name}</h1>
 
             {company.description && (
               <p className="text-lg text-slate-400 max-w-2xl mb-5 leading-relaxed">{company.description}</p>
@@ -204,7 +204,7 @@ export const CompanyPage = () => {
         {/* Services */}
         {services.length > 0 && (
           <section className="mb-16">
-            <h2 className="text-2xl font-black text-white mb-8">Serviços</h2>
+            <h2 className="text-2xl font-extrabold text-white mb-8">Serviços</h2>
             {Object.entries(grouped).map(([cat, svcs]) => {
               const colors = CAT_COLOR[cat] ?? CAT_COLOR.Geral;
               return (
@@ -296,7 +296,7 @@ export const CompanyPage = () => {
         {reviews.length > 0 && (
           <section className="mb-16">
             <div className="flex items-center gap-4 mb-8">
-              <h2 className="text-2xl font-black text-white">Avaliações</h2>
+              <h2 className="text-2xl font-extrabold text-white">Avaliações</h2>
               {avgRating && (
                 <div className="flex items-center gap-2">
                   <span className="text-3xl font-black text-white">{avgRating}</span>
@@ -345,7 +345,7 @@ export const CompanyPage = () => {
               background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(99,102,241,0.08))',
               border: '1px solid rgba(37,99,235,0.2)',
             }}>
-            <h3 className="text-3xl font-black text-white mb-3">Pronto para agendar?</h3>
+            <h3 className="text-3xl font-extrabold text-white mb-3">Pronto para agendar?</h3>
             <p className="text-slate-400 mb-8">Escolha o serviço e o melhor horário para você.</p>
             <Link
               to={`/empresa/${slug}/agendar`}

@@ -24,7 +24,7 @@ export const DashboardPreview = () => (
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}>
           <span className="text-xs font-black text-blue-500 uppercase tracking-widest mb-4 block">Painel de gestão</span>
-          <h2 className="text-4xl lg:text-5xl font-black text-white mb-6 leading-[1.05] tracking-tight">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-[1.05] tracking-tight">
             Controle total da sua<br />
             <span className="bg-gradient-to-r from-blue-400 to-violet-500 bg-clip-text text-transparent">
               estética em um só lugar

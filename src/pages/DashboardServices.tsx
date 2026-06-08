@@ -134,7 +134,7 @@ export const DashboardServices = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-          <h1 className="text-2xl font-black text-white">Serviços</h1>
+          <h1 className="text-2xl font-extrabold text-white">Serviços</h1>
         </div>
         <button
           onClick={() => openForm()}
@@ -156,7 +156,7 @@ export const DashboardServices = () => {
               className="w-full max-w-md p-6 rounded-3xl overflow-y-auto max-h-[90vh]"
               style={cardStyle}>
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-black text-white">{form.id ? 'Editar serviço' : 'Novo serviço'}</h3>
+                <h3 className="text-lg font-extrabold text-white">{form.id ? 'Editar serviço' : 'Novo serviço'}</h3>
                 <button onClick={closeForm} className="text-slate-500 hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>

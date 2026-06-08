@@ -43,7 +43,7 @@ export const TestimonialsSection = () => (
         transition={{ duration: 0.6 }}
         className="text-center mb-16">
         <span className="text-xs font-black text-blue-500 uppercase tracking-widest mb-3 block">Depoimentos</span>
-        <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
+        <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight">
           Estéticas que transformaram<br />seu negócio com a plataforma
         </h2>
         <p className="text-slate-400 max-w-xl mx-auto text-lg">

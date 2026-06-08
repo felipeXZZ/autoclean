@@ -41,7 +41,7 @@ export const CidadePage = () => {
           </Link>
           <div className="flex items-center gap-3 mb-2">
             <MapPin className="w-6 h-6 text-blue-400" />
-            <h1 className="text-3xl font-black text-white">
+            <h1 className="text-3xl font-extrabold text-white">
               Estéticas automotivas em {cityName}
             </h1>
           </div>

@@ -64,7 +64,7 @@ export const DashboardCompany = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-          <h1 className="text-2xl font-black text-white">Minha estética</h1>
+          <h1 className="text-2xl font-extrabold text-white">Minha estética</h1>
         </div>
         {!editing ? (
           <button

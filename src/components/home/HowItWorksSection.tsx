@@ -40,7 +40,7 @@ export const HowItWorksSection = () => (
         transition={{ duration: 0.6 }}
         className="text-center mb-16">
         <span className="text-xs font-black text-blue-500 uppercase tracking-widest mb-3 block">Como funciona</span>
-        <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
+        <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight">
           Do cadastro ao primeiro<br />agendamento em minutos
         </h2>
         <p className="text-slate-400 max-w-xl mx-auto text-lg">
@@ -80,7 +80,7 @@ export const HowItWorksSection = () => (
               <step.icon className="w-7 h-7" style={{ color: step.color }} />
             </div>
 
-            <h3 className="text-xl font-black text-white mb-3">{step.title}</h3>
+            <h3 className="text-xl font-extrabold text-white mb-3">{step.title}</h3>
             <p className="text-slate-400 text-sm leading-relaxed">{step.description}</p>
           </motion.div>
         ))}

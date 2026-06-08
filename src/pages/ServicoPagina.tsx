@@ -40,7 +40,7 @@ export const ServicoPagina = () => {
           </Link>
           <div className="flex items-center gap-3 mb-2">
             <Wrench className="w-6 h-6 text-blue-400" />
-            <h1 className="text-3xl font-black text-white">
+            <h1 className="text-3xl font-extrabold text-white">
               {serviceName} automotivo perto de você
             </h1>
           </div>

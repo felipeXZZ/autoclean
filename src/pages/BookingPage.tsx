@@ -217,7 +217,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
           <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-2">Agendado!</h2>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Agendado!</h2>
           <p className="text-slate-500 dark:text-slate-400 mb-2">
             Seu agendamento foi registrado com sucesso.
           </p>
@@ -274,7 +274,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
     >
       <div className="max-w-3xl mx-auto px-4">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Agendar Serviço</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Agendar Serviço</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Profissionais vão até você. Rápido, fácil e sem sair de casa.</p>
         </div>
 
@@ -288,7 +288,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-end justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-black text-slate-900 dark:text-white">O que faremos hoje?</h2>
+                    <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">O que faremos hoje?</h2>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Escolha um ou mais serviços</p>
                   </div>
                   {totalPrice > 0 && (
@@ -332,7 +332,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                               {selected && <CheckCircle className="w-3 h-3 text-white" />}
                             </div>
                           </div>
-                          <h3 className={cn('font-black text-base mb-1', selected ? 'text-blue-700 dark:text-blue-400' : 'text-slate-900 dark:text-white')}>
+                          <h3 className={cn('font-extrabold text-base mb-1', selected ? 'text-blue-700 dark:text-blue-400' : 'text-slate-900 dark:text-white')}>
                             {svc.name}
                           </h3>
                           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 line-clamp-2">{svc.description}</p>
@@ -369,7 +369,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                   <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline mb-3">
                     <ArrowLeft className="w-4 h-4" /> Voltar
                   </button>
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white">Quando podemos ir?</h2>
+                  <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Quando podemos ir?</h2>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Escolha a data e o horário disponível</p>
                 </div>
 
@@ -429,7 +429,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                 <button onClick={() => setStep(2)} className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline mb-3">
                   <ArrowLeft className="w-4 h-4" /> Voltar
                 </button>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">Seus dados</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-1">Seus dados</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Preencha onde seu carro está e como entrar em contato</p>
 
                 <form onSubmit={(e) => { e.preventDefault(); setStep(4); }} className="space-y-4">
@@ -558,7 +558,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                   <button onClick={() => setStep(3)} className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline mb-3">
                     <ArrowLeft className="w-4 h-4" /> Voltar
                   </button>
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white">Confirmar agendamento</h2>
+                  <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Confirmar agendamento</h2>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Verifique os detalhes antes de finalizar</p>
                 </div>
 

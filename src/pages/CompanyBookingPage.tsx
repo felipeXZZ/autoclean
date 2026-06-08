@@ -245,7 +245,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
             style={{ background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.2)' }}>
             <Building2 className="w-8 h-8 text-blue-400" />
           </div>
-          <h2 className="text-xl font-black text-white mb-2">Você é o dono desta empresa</h2>
+          <h2 className="text-xl font-extrabold text-white mb-2">Você é o dono desta empresa</h2>
           <p className="text-slate-400 text-sm mb-8">
             Donos não podem agendar nos próprios serviços. Acesse o painel para gerenciar sua agenda.
           </p>
@@ -279,7 +279,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
             style={{ background: 'rgba(16,185,129,0.15)' }}>
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h2 className="text-3xl font-black text-white mb-2">Agendado!</h2>
+          <h2 className="text-3xl font-extrabold text-white mb-2">Agendado!</h2>
           <p className="text-slate-400 mb-2">Seu agendamento foi registrado com sucesso.</p>
           <p className="text-xs text-slate-500 font-mono mb-8">#{createdId.slice(-8).toUpperCase()}</p>
 
@@ -361,7 +361,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-end justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-black text-white">O que faremos hoje?</h2>
+                    <h2 className="text-2xl font-extrabold text-white">O que faremos hoje?</h2>
                     <p className="text-slate-400 text-sm mt-1">Escolha um ou mais serviços</p>
                   </div>
                   {totalPrice > 0 && (
@@ -404,7 +404,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                               {sel && <CheckCircle className="w-3 h-3 text-white" />}
                             </div>
                           </div>
-                          <h3 className="font-black text-white text-base mb-1">{svc.name}</h3>
+                          <h3 className="font-extrabold text-white text-base mb-1">{svc.name}</h3>
                           {svc.description && (
                             <p className="text-xs text-slate-500 mb-3 line-clamp-2">{svc.description}</p>
                           )}
@@ -442,7 +442,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                   <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 mb-4 transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Voltar
                   </button>
-                  <h2 className="text-2xl font-black text-white">Quando podemos ir?</h2>
+                  <h2 className="text-2xl font-extrabold text-white">Quando podemos ir?</h2>
                   <p className="text-slate-400 text-sm mt-1">Escolha a data e horário disponível</p>
                 </div>
 
@@ -511,7 +511,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                 <button onClick={() => setStep(2)} className="flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 mb-4 transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Voltar
                 </button>
-                <h2 className="text-2xl font-black text-white mb-1">Seus dados</h2>
+                <h2 className="text-2xl font-extrabold text-white mb-1">Seus dados</h2>
                 <p className="text-slate-400 text-sm mb-6">Onde seu carro está e como entrar em contato</p>
 
                 <form onSubmit={(e) => { e.preventDefault(); setStep(4); }} className="space-y-4">
@@ -623,7 +623,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                   <button onClick={() => setStep(3)} className="flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 mb-4 transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Voltar
                   </button>
-                  <h2 className="text-2xl font-black text-white">Confirmar agendamento</h2>
+                  <h2 className="text-2xl font-extrabold text-white">Confirmar agendamento</h2>
                   <p className="text-slate-400 text-sm mt-1">Verifique os detalhes antes de finalizar</p>
                 </div>
 

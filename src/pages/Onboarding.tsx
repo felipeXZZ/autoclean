@@ -140,7 +140,7 @@ export const Onboarding = ({ user, onCompanyCreated }: Props) => {
               style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', boxShadow: '0 0 32px rgba(37,99,235,0.35)' }}>
               <Sparkles className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tight">Configure sua estética</h1>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Configure sua estética</h1>
             <p className="text-slate-400 mt-2 text-sm">Isso leva menos de 2 minutos.</p>
           </div>
         )}
@@ -170,7 +170,7 @@ export const Onboarding = ({ user, onCompanyCreated }: Props) => {
               className="p-8 rounded-3xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-center gap-2 mb-6">
                 <Building2 className="w-5 h-5 text-blue-400" />
-                <h2 className="text-lg font-black text-white">Identidade da estética</h2>
+                <h2 className="text-lg font-extrabold text-white">Identidade da estética</h2>
               </div>
 
               <div className="space-y-4">
@@ -245,7 +245,7 @@ export const Onboarding = ({ user, onCompanyCreated }: Props) => {
               className="p-8 rounded-3xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-center gap-2 mb-6">
                 <Phone className="w-5 h-5 text-blue-400" />
-                <h2 className="text-lg font-black text-white">Contato e atendimento</h2>
+                <h2 className="text-lg font-extrabold text-white">Contato e atendimento</h2>
               </div>
 
               <div className="space-y-4">
@@ -311,7 +311,7 @@ export const Onboarding = ({ user, onCompanyCreated }: Props) => {
               className="p-8 rounded-3xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-center gap-2 mb-6">
                 <MapPin className="w-5 h-5 text-blue-400" />
-                <h2 className="text-lg font-black text-white">Localização</h2>
+                <h2 className="text-lg font-extrabold text-white">Localização</h2>
               </div>
 
               <div className="space-y-4">
@@ -382,7 +382,7 @@ export const Onboarding = ({ user, onCompanyCreated }: Props) => {
                 <CheckCircle2 className="w-10 h-10 text-emerald-400" />
               </motion.div>
 
-              <h2 className="text-3xl font-black text-white mb-2">Estética criada!</h2>
+              <h2 className="text-3xl font-extrabold text-white mb-2">Estética criada!</h2>
               <p className="text-slate-400 text-sm mb-8 max-w-xs mx-auto">
                 <span className="text-white font-bold">{form.name}</span> está no ar. Acesse seu painel para configurar horários, serviços e receber agendamentos.
               </p>

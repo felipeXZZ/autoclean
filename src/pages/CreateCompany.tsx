@@ -96,7 +96,7 @@ export const CreateCompany = ({ user, onCompanyCreated }: Props) => {
             style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', boxShadow: '0 0 40px rgba(37,99,235,0.4)' }}>
             <Building2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-black text-white mb-2">Criar sua estética</h1>
+          <h1 className="text-3xl font-extrabold text-white mb-2">Criar sua estética</h1>
           <p className="text-slate-400">Preencha os dados da sua empresa para começar a receber agendamentos.</p>
         </div>
 

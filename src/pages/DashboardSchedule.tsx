@@ -90,7 +90,7 @@ export const DashboardSchedule = () => {
     <div>
       <div className="mb-6">
         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-        <h1 className="text-2xl font-black text-white">Horários</h1>
+        <h1 className="text-2xl font-extrabold text-white">Horários</h1>
       </div>
 
       {loading ? (
@@ -103,7 +103,7 @@ export const DashboardSchedule = () => {
           {/* Business hours */}
           <div className="p-5 rounded-2xl mb-6" style={cardStyle}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-black text-white">Funcionamento semanal</h2>
+              <h2 className="font-extrabold text-white">Funcionamento semanal</h2>
               <button
                 onClick={saveHours} disabled={saving}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-white text-sm disabled:opacity-50"
@@ -160,7 +160,7 @@ export const DashboardSchedule = () => {
 
           {/* Blocked slots */}
           <div className="p-5 rounded-2xl" style={cardStyle}>
-            <h2 className="font-black text-white mb-4">Datas e horários bloqueados</h2>
+            <h2 className="font-extrabold text-white mb-4">Datas e horários bloqueados</h2>
 
             {/* Add new block */}
             <div className="flex flex-wrap gap-2 mb-4 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>

@@ -84,7 +84,7 @@ export const Dashboard = () => {
       <div>
         <div className="mb-6">
           <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-          <h1 className="text-2xl font-black text-white">Visão Geral</h1>
+          <h1 className="text-2xl font-extrabold text-white">Visão Geral</h1>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[...Array(4)].map((_, i) => (
@@ -100,7 +100,7 @@ export const Dashboard = () => {
       {/* Title */}
       <div className="mb-6">
         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Painel</p>
-        <h1 className="text-2xl font-black text-white">Visão Geral</h1>
+        <h1 className="text-2xl font-extrabold text-white">Visão Geral</h1>
       </div>
 
       {/* HOJE */}
@@ -127,7 +127,7 @@ export const Dashboard = () => {
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Upcoming appointments */}
         <div className="lg:col-span-2 p-5 rounded-2xl" style={cardStyle}>
-          <h3 className="text-sm font-black text-white mb-4">Próximos agendamentos</h3>
+          <h3 className="text-sm font-extrabold text-white mb-4">Próximos agendamentos</h3>
           {upcomingAppts.length === 0 ? (
             <div className="text-center py-10">
               <Calendar className="w-8 h-8 text-slate-600 mx-auto mb-2" />
@@ -167,7 +167,7 @@ export const Dashboard = () => {
         <div className="space-y-3">
           <div className="p-5 rounded-2xl" style={cardStyle}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-black text-white">Ações rápidas</h3>
+              <h3 className="text-sm font-extrabold text-white">Ações rápidas</h3>
               <div className="flex items-center gap-1.5">
                 <Wrench className="w-3.5 h-3.5 text-slate-500" />
                 <span className="text-xs text-slate-500">{activeServices} serviços</span>
