@@ -154,7 +154,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen text-slate-900 dark:text-white">
       <Toaster position="bottom-right" toastOptions={{ duration: 4000 }} />
 
       {!isFullscreen && (
