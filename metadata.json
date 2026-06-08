@@ -1,0 +1,5 @@
+{
+  "name": "AutoClean",
+  "description": "Plataforma de estética automotiva sob demanda. Seu carro limpo sem sair de casa.",
+  "requestFramePermissions": ["geolocation"]
+}

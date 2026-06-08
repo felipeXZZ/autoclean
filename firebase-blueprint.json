@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "Service": {
+      "title": "Service",
+      "description": "Esthetic services offered by AutoClean",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "duration": { "type": "string" },
+        "icon": { "type": "string" }
+      },
+      "required": ["name", "price"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Service booking details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "address": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "serviceName": { "type": "string" },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "price": { "type": "number" }
+            }
+          }
+        },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
+        "paymentMethod": { "type": "string", "enum": ["online", "local"] },
+        "totalPrice": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerName", "customerPhone", "address", "serviceId", "date", "time"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "client"] }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "services": {
+      "schema": "Service",
+      "description": "Collection of available services"
+    },
+    "bookings": {
+      "schema": "Booking",
+      "description": "Collection of service bookings"
+    },
+    "users": {
+      "schema": "User",
+      "description": "Collection of user profiles"
+    }
+  }
+}
