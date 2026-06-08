@@ -12,7 +12,7 @@ const cardBg = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(2
 export const ParaEmpresas = () => {
   const { user, isCompanyOwner } = useAuth();
 
-  const ctaLink = isCompanyOwner ? '/dashboard' : user ? '/onboarding' : '/register';
+  const ctaLink = isCompanyOwner ? '/dashboard' : user ? '/onboarding' : '/register?empresa=1';
   const ctaLabel = isCompanyOwner ? 'Acessar meu painel' : 'Cadastrar minha estética gratuitamente';
 
   return (
@@ -38,7 +38,7 @@ export const ParaEmpresas = () => {
                 <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">Para estéticas automotivas</span>
               </div>
 
-              <h1 className="text-4xl lg:text-5xl xl:text-[3.4rem] font-black leading-[1.06] mb-6 tracking-tight text-white">
+              <h1 className="text-4xl lg:text-5xl xl:text-[3.4rem] font-extrabold leading-[1.06] mb-6 tracking-tight text-white">
                 Receba agendamentos<br />
                 <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">
                   online para sua estética
@@ -134,7 +134,7 @@ export const ParaEmpresas = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Por que usar o AutoClean</p>
-            <h2 className="text-3xl font-black text-white">Tudo que sua estética precisa</h2>
+            <h2 className="text-3xl font-extrabold text-white">Tudo que sua estética precisa</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
@@ -167,7 +167,7 @@ export const ParaEmpresas = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Processo simples</p>
-            <h2 className="text-3xl font-black text-white">Como funciona</h2>
+            <h2 className="text-3xl font-extrabold text-white">Como funciona</h2>
           </div>
           <div className="space-y-4">
             {[
@@ -196,7 +196,7 @@ export const ParaEmpresas = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Planos</p>
-            <h2 className="text-3xl font-black text-white">Comece grátis, cresça com a gente</h2>
+            <h2 className="text-3xl font-extrabold text-white">Comece grátis, cresça com a gente</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
@@ -273,7 +273,7 @@ export const ParaEmpresas = () => {
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '70%', height: '80%', background: 'radial-gradient(ellipse at center, rgba(37,99,235,0.18) 0%, transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Comece agora</p>
-          <h2 className="text-4xl font-black text-white mb-6 leading-tight">
+          <h2 className="text-4xl font-extrabold text-white mb-6 leading-tight">
             Pronto para colocar sua estética no AutoClean?
           </h2>
           <p className="text-slate-400 mb-10 text-lg">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Car, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -13,6 +13,8 @@ export const Register = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isEmpresaFlow = searchParams.get('empresa') === '1';
   const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,8 +27,8 @@ export const Register = () => {
     try {
       const { error } = await signUp(email, password, name.trim());
       if (error) throw error;
-      toast.success('Conta criada! Vamos configurar sua estética.');
-      navigate('/onboarding');
+      toast.success('Conta criada com sucesso!');
+      navigate(isEmpresaFlow ? '/onboarding' : '/');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('User already registered')) toast.error('Este e-mail já possui conta.');
@@ -50,7 +52,7 @@ export const Register = () => {
             style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', boxShadow: '0 0 32px rgba(37,99,235,0.35)' }}>
             <Car className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Criar conta grátis</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Criar conta grátis</h1>
           <p className="text-slate-400 mt-2 text-sm">Comece agora. Sem cartão de crédito.</p>
         </div>
 

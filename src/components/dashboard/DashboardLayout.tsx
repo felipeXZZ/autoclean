@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Wrench, Clock, Users, Building2,
-  ExternalLink, LogOut, Copy, ChevronRight, Loader2, Menu, X,
+  ExternalLink, LogOut, Copy, ChevronRight, Loader2, Menu, X, Car,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
@@ -47,9 +47,7 @@ function Sidebar({
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h11M9 21V3m0 0L5 7m4-4l4 4M21 21l-6-6m6 6V9m0 12H9" />
-            </svg>
+            <Car className="w-4 h-4 text-white" />
           </div>
           <span className="text-sm font-black text-white tracking-tight">AutoClean</span>
         </Link>
@@ -136,7 +134,7 @@ export const DashboardLayout = () => {
 
   useEffect(() => {
     if (!authLoading && !companyLoading && user && !company && !isAdmin && !isCompanyOwner) {
-      navigate('/onboarding');
+      navigate('/');
     }
   }, [authLoading, companyLoading, user, company, isAdmin, isCompanyOwner, navigate]);
 

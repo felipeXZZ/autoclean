@@ -170,12 +170,12 @@ function AppContent() {
       )}
 
       <main>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           <Routes>
             {/* ── Public ── */}
             <Route path="/" element={<Home />} />
             <Route path="/login"    element={user ? <Navigate to={isAdmin || isCompanyOwner ? '/dashboard' : '/'} /> : <Login />} />
-            <Route path="/register" element={user ? <Navigate to={isCompanyOwner ? '/dashboard' : '/onboarding'} /> : <Register />} />
+            <Route path="/register" element={user ? <Navigate to={isCompanyOwner ? '/dashboard' : '/'} /> : <Register />} />
 
             {/* ── Onboarding ── */}
             <Route

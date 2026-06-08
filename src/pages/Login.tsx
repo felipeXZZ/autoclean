@@ -24,8 +24,8 @@ export const Login = () => {
         if (name.trim().length < 2) { toast.error('Informe seu nome completo.'); return; }
         const { error } = await signUp(email, password, name.trim());
         if (error) throw error;
-        toast.success('Conta criada! Vamos configurar sua estética.');
-        navigate('/onboarding');
+        toast.success('Conta criada com sucesso!');
+        navigate('/');
       } else {
         const { error } = await signIn(email, password);
         if (error) throw error;
@@ -44,85 +44,95 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 pt-24 transition-colors">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[2.5rem] shadow-2xl max-w-md w-full border border-slate-100 dark:border-slate-800 transition-colors">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: '#060b18' }}>
+      <div className="w-full max-w-md">
 
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-100 dark:shadow-none">
-            <Car className="w-8 h-8 text-white" />
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', boxShadow: '0 0 32px rgba(37,99,235,0.35)' }}>
+            <Car className="w-7 h-7 text-white" />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl font-extrabold text-white tracking-tight">
             {isRegister ? 'Criar Conta' : 'Área do Cliente'}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 font-medium mt-2">
+          <p className="text-slate-400 mt-2 text-sm">
             {isRegister
               ? 'Junte-se à revolução da limpeza automotiva.'
               : 'Entre para gerenciar seus agendamentos.'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegister && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-8 rounded-3xl"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isRegister && (
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input
+                  required type="text" placeholder="Nome completo"
+                  value={name} onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 rounded-xl text-white text-sm outline-none transition-colors placeholder-slate-500"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+                />
+              </div>
+            )}
+
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
-                required type="text" placeholder="Nome completo"
-                value={name} onChange={(e) => setName(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-blue-600 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                required type="email" placeholder="Seu e-mail"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-11 pr-4 py-3.5 rounded-xl text-white text-sm outline-none transition-colors placeholder-slate-500"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
               />
             </div>
-          )}
 
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              required type="email" placeholder="Seu e-mail"
-              value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-blue-600 outline-none transition-all font-medium text-slate-900 dark:text-white"
-            />
-          </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                required type={showPass ? 'text' : 'password'} placeholder="Sua senha (mín. 6 caracteres)"
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-11 pr-11 py-3.5 rounded-xl text-white text-sm outline-none transition-colors placeholder-slate-500"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+              />
+              <button type="button" onClick={() => setShowPass(!showPass)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
 
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              required type={showPass ? 'text' : 'password'} placeholder="Sua senha (mín. 6 caracteres)"
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-blue-600 outline-none transition-all font-medium text-slate-900 dark:text-white"
-            />
-            <button type="button" onClick={() => setShowPass(!showPass)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-              {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            <button
+              disabled={loading} type="submit"
+              className="w-full py-4 rounded-xl font-black text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50 mt-2"
+              style={{ background: '#2563eb', boxShadow: '0 0 24px rgba(37,99,235,0.35)' }}>
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  {isRegister ? 'Criar Conta' : 'Entrar Agora'}
+                  <ChevronRight className="w-5 h-5" />
+                </>
+              )}
             </button>
-          </div>
+          </form>
 
-          <button
-            disabled={loading} type="submit"
-            className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-xl shadow-blue-100 dark:shadow-none disabled:opacity-50 mt-2">
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                {isRegister ? 'Criar Conta' : 'Entrar Agora'}
-                <ChevronRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-center text-sm text-slate-500 mt-6">
             {isRegister ? 'Já possui conta?' : 'Ainda não é cliente?'}
             <button onClick={() => setIsRegister(!isRegister)}
-              className="ml-2 text-blue-600 font-bold hover:underline">
+              className="ml-2 text-blue-400 font-bold hover:text-blue-300 transition-colors">
               {isRegister ? 'Fazer login' : 'Criar conta gratuita'}
             </button>
           </p>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };
