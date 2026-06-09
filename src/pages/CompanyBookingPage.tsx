@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   CheckCircle, ChevronRight, ArrowLeft, Clock, MapPin, Phone,
@@ -13,7 +13,12 @@ import { getCompanyBySlug, getCompanyServices } from '../services/companyService
 import { getAvailableSlots, createAppointment } from '../services/appointmentService';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
+import {
+  onlyNumbers, formatPhoneBR, formatCep, formatPlate,
+  isValidPhoneBR, isValidPlate, fetchAddressByCep,
+} from '../lib/bookingUtils';
 import type { Company, Service, Profile, PaymentMethod } from '../types';
+import { useAccountMode } from '../contexts/AccountModeContext';
 
 interface Props {
   user: SupabaseUser | null;
@@ -33,7 +38,12 @@ interface CustomerData {
   customer_phone: string;
   vehicle_model: string;
   vehicle_plate: string;
-  address: string;
+  zip_code: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  state: string;
   address_complement: string;
   notes: string;
   payment_method: PaymentMethod;
@@ -87,12 +97,16 @@ function StepBar({ current }: { current: number }) {
   );
 }
 
-const inputCls = 'w-full px-4 py-3.5 rounded-xl text-white font-medium text-sm focus:outline-none transition-colors placeholder-slate-500 focus:border-blue-500';
+const inputCls = 'w-full px-4 py-3.5 rounded-xl text-white font-medium text-sm focus:outline-none transition-colors placeholder-slate-500';
 const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' };
+const inputErrStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(239,68,68,0.6)' };
 
 export const CompanyBookingPage = ({ user, profile }: Props) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate  = useNavigate();
+  const location  = useLocation();
+  const { isCompanyMode, switchToClientMode } = useAccountMode();
+  const preSelected = (location.state as { preSelected?: SelectedService } | null)?.preSelected;
 
   const [company, setCompany]   = useState<Company | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -101,20 +115,30 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
 
   const [step, setStep]         = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
+  const [selectedServices, setSelectedServices] = useState<SelectedService[]>(
+    preSelected ? [preSelected] : []
+  );
   const [date, setDate]         = useState('');
   const [time, setTime]         = useState('');
   const [slots, setSlots]       = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [createdId, setCreatedId] = useState('');
+  const [errors, setErrors]     = useState<Record<string, string>>({});
+  const [fetchingCep, setFetchingCep] = useState(false);
+  const [cepError, setCepError] = useState('');
 
   const [customer, setCustomer] = useState<CustomerData>({
     customer_name: profile?.full_name ?? '',
     customer_email: user?.email ?? '',
-    customer_phone: profile?.phone ?? '',
+    customer_phone: profile?.phone ? formatPhoneBR(profile.phone) : '',
     vehicle_model: '',
     vehicle_plate: '',
-    address: '',
+    zip_code: '',
+    street: '',
+    number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
     address_complement: '',
     notes: '',
     payment_method: 'local',
@@ -150,7 +174,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
       setCustomer((p) => ({
         ...p,
         customer_name: p.customer_name || profile.full_name,
-        customer_phone: p.customer_phone || profile.phone || '',
+        customer_phone: p.customer_phone || (profile.phone ? formatPhoneBR(profile.phone) : ''),
       }));
     }
     if (user?.email) {
@@ -169,6 +193,27 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
       .finally(() => setLoadingSlots(false));
   }, [date, company]);
 
+  // Auto-fetch address by CEP
+  useEffect(() => {
+    const digits = onlyNumbers(customer.zip_code);
+    if (digits.length !== 8) return;
+    setFetchingCep(true);
+    setCepError('');
+    fetchAddressByCep(digits)
+      .then((addr) => {
+        if (!addr) { setCepError('CEP não encontrado. Verifique e tente novamente.'); return; }
+        setCustomer((prev) => ({
+          ...prev,
+          street: addr.street || prev.street,
+          neighborhood: addr.neighborhood || prev.neighborhood,
+          city: addr.city || prev.city,
+          state: addr.state || prev.state,
+        }));
+      })
+      .catch(() => setCepError('Não foi possível buscar o CEP agora. Preencha o endereço manualmente.'))
+      .finally(() => setFetchingCep(false));
+  }, [customer.zip_code]);
+
   const totalPrice   = selectedServices.reduce((s, svc) => s + svc.price, 0);
   const totalMinutes = selectedServices.reduce((s, svc) => s + svc.duration_minutes, 0);
   const durationLabel = totalMinutes >= 60
@@ -184,8 +229,37 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
   }
 
   function set(field: keyof CustomerData, value: string) {
-    setCustomer((p) => ({ ...p, [field]: value }));
+    if (field === 'zip_code') setCepError('');
+    setErrors((prev) => ({ ...prev, [field]: '' }));
+    let processed = value;
+    if (field === 'customer_phone') processed = formatPhoneBR(value);
+    else if (field === 'zip_code') processed = formatCep(value);
+    else if (field === 'vehicle_plate') processed = formatPlate(value);
+    setCustomer((p) => ({ ...p, [field]: processed }));
   }
+
+  function validateStep3(): boolean {
+    const e: Record<string, string> = {};
+    if (!customer.customer_name.trim()) e.customer_name = 'Nome obrigatório.';
+    if (!isValidPhoneBR(customer.customer_phone)) e.customer_phone = 'Informe um WhatsApp válido com DDD.';
+    if (!customer.customer_email.trim() || !/\S+@\S+\.\S+/.test(customer.customer_email)) {
+      e.customer_email = 'Informe um e-mail válido.';
+    }
+    if (!customer.vehicle_model.trim()) e.vehicle_model = 'Modelo do carro obrigatório.';
+    if (!isValidPlate(customer.vehicle_plate)) e.vehicle_plate = 'Informe uma placa válida com 7 caracteres.';
+    if (onlyNumbers(customer.zip_code).length !== 8) e.zip_code = 'CEP deve ter 8 dígitos.';
+    if (!customer.street.trim()) e.street = 'Rua obrigatória.';
+    if (!customer.number.trim()) e.number = 'Número obrigatório.';
+    if (!customer.neighborhood.trim()) e.neighborhood = 'Bairro obrigatório.';
+    if (!customer.city.trim()) e.city = 'Cidade obrigatória.';
+    if (!customer.state.trim()) e.state = 'Estado obrigatório.';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  const composedAddress = customer.street
+    ? `${customer.street}, ${customer.number} - ${customer.neighborhood}, ${customer.city} - ${customer.state}, ${customer.zip_code}`
+    : '';
 
   async function handleConfirm() {
     if (!company) return;
@@ -193,7 +267,15 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
     try {
       const appt = await createAppointment({
         company_id: company.id,
-        ...customer,
+        customer_name: customer.customer_name,
+        customer_email: customer.customer_email,
+        customer_phone: onlyNumbers(customer.customer_phone),
+        vehicle_model: customer.vehicle_model,
+        vehicle_plate: customer.vehicle_plate,
+        address: composedAddress,
+        address_complement: customer.address_complement,
+        notes: customer.notes,
+        payment_method: customer.payment_method,
         appointment_date: date,
         appointment_time: `${time}:00`,
         total_price: totalPrice,
@@ -215,13 +297,51 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
     `*Serviços:* ${selectedServices.map((s) => s.name).join(', ')}\n` +
     `*Total:* R$ ${totalPrice}\n` +
     `*Data:* ${date} às ${time}\n` +
-    `*Endereço:* ${customer.address}`
+    `*Endereço:* ${composedAddress}`
   );
   const waHref = company?.whatsapp
     ? `https://wa.me/${company.whatsapp.replace(/\D/g, '')}?text=${waText}`
     : `https://wa.me/5511999999999?text=${waText}`;
 
   const today = format(new Date(), 'yyyy-MM-dd');
+
+  const fldStyle = (field: string) => errors[field] ? inputErrStyle : inputStyle;
+
+  if (isCompanyMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#060b18' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-sm w-full text-center"
+        >
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}>
+            <Building2 className="w-10 h-10 text-violet-400" />
+          </div>
+          <h2 className="text-2xl font-extrabold text-white mb-3">Você está no modo Empresa</h2>
+          <p className="text-slate-400 mb-8 leading-relaxed text-sm">
+            Para agendar um serviço como cliente, altere o modo de acesso no menu do usuário.
+          </p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={switchToClientMode}
+              className="py-3.5 rounded-xl font-bold text-white transition-all"
+              style={{ background: '#2563eb', boxShadow: '0 0 24px rgba(37,99,235,0.35)' }}>
+              Mudar para cliente e continuar
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="py-3.5 rounded-xl font-bold text-slate-400 hover:text-white transition-all block w-full text-sm"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              Voltar
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (loadingPage) {
     return (
@@ -235,6 +355,50 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
     background: 'rgba(255,255,255,0.03)',
     border: '1px solid rgba(255,255,255,0.08)',
   };
+
+  // ── AUTH GATE
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#060b18' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-sm w-full text-center">
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)' }}>
+            <User className="w-10 h-10 text-blue-400" />
+          </div>
+          <h2 className="text-2xl font-extrabold text-white mb-3">Entre para agendar</h2>
+          <p className="text-slate-400 text-sm leading-relaxed mb-2">
+            Para agendar um serviço é necessário ter uma conta no AutoClean.
+          </p>
+          <p className="text-slate-500 text-sm mb-8">É rápido e gratuito!</p>
+          <div className="flex flex-col gap-3">
+            <Link
+              to="/login"
+              state={{ from: `/empresa/${slug}/agendar` }}
+              className="py-3.5 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2"
+              style={{ background: '#2563eb', boxShadow: '0 0 24px rgba(37,99,235,0.35)' }}>
+              Entrar na minha conta
+            </Link>
+            <Link
+              to="/register"
+              state={{ from: `/empresa/${slug}/agendar` }}
+              className="py-3.5 rounded-xl font-bold text-slate-300 hover:text-white transition-all"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              Criar conta grátis
+            </Link>
+            <Link
+              to={`/empresa/${slug}`}
+              className="text-sm text-slate-500 hover:text-slate-300 transition-colors py-2">
+              ← Voltar para a página da empresa
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   // ── OWNER BLOCK
   if (isOwner) {
@@ -294,7 +458,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
             </div>
             <div className="flex gap-2 items-start">
               <MapPin className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-              <span className="text-slate-300">{customer.address}</span>
+              <span className="text-slate-300">{composedAddress}</span>
             </div>
             <div className="flex gap-2 items-center">
               <CreditCard className="w-4 h-4 text-blue-400 flex-shrink-0" />
@@ -332,7 +496,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20" style={{ background: '#060b18' }}>
+    <div className="min-h-screen pt-20 sm:pt-28 pb-16 sm:pb-20" style={{ background: '#060b18' }}>
       <div className="max-w-2xl mx-auto px-4">
 
         {/* Company header */}
@@ -353,7 +517,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
 
         <StepBar current={step} />
 
-        <div className="rounded-3xl p-6 md:p-8" style={cardStyle}>
+        <div className="rounded-3xl p-4 sm:p-6 md:p-8" style={cardStyle}>
           <AnimatePresence mode="wait">
 
             {/* STEP 1: SERVIÇOS */}
@@ -361,7 +525,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-end justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-extrabold text-white">O que faremos hoje?</h2>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-white">O que faremos hoje?</h2>
                     <p className="text-slate-400 text-sm mt-1">Escolha um ou mais serviços</p>
                   </div>
                   {totalPrice > 0 && (
@@ -442,7 +606,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                   <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 mb-4 transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Voltar
                   </button>
-                  <h2 className="text-2xl font-extrabold text-white">Quando podemos ir?</h2>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">Quando podemos ir?</h2>
                   <p className="text-slate-400 text-sm mt-1">Escolha a data e horário disponível</p>
                 </div>
 
@@ -497,7 +661,14 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
 
                 <button
                   disabled={!date || !time}
-                  onClick={() => setStep(3)}
+                  onClick={() => {
+                    if (date < today) {
+                      toast.error('Selecione uma data a partir de hoje.');
+                      setDate('');
+                      return;
+                    }
+                    setStep(3);
+                  }}
                   className="w-full py-5 rounded-2xl font-black text-white text-lg flex items-center justify-center gap-2 transition-all disabled:opacity-40"
                   style={{ background: '#2563eb', boxShadow: date && time ? '0 0 30px rgba(37,99,235,0.4)' : 'none' }}>
                   Continuar <ChevronRight className="w-5 h-5" />
@@ -511,61 +682,137 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                 <button onClick={() => setStep(2)} className="flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 mb-4 transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Voltar
                 </button>
-                <h2 className="text-2xl font-extrabold text-white mb-1">Seus dados</h2>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">Seus dados</h2>
                 <p className="text-slate-400 text-sm mb-6">Onde seu carro está e como entrar em contato</p>
 
-                <form onSubmit={(e) => { e.preventDefault(); setStep(4); }} className="space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); if (validateStep3()) setStep(4); }} className="space-y-4">
+
+                  {/* Linha 1: Nome + WhatsApp */}
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                         <User className="w-3 h-3 inline mr-1" /> Nome
                       </label>
-                      <input required type="text" placeholder="Seu nome completo"
+                      <input type="text" placeholder="Seu nome completo"
                         value={customer.customer_name} onChange={(e) => set('customer_name', e.target.value)}
-                        className={inputCls} style={inputStyle} />
+                        className={inputCls} style={fldStyle('customer_name')} />
+                      {errors.customer_name && <p className="text-red-400 text-xs mt-1">{errors.customer_name}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                         <Phone className="w-3 h-3 inline mr-1" /> WhatsApp
                       </label>
-                      <input required type="tel" placeholder="(11) 99999-9999"
+                      <input type="tel" placeholder="(11) 99999-9999"
                         value={customer.customer_phone} onChange={(e) => set('customer_phone', e.target.value)}
-                        className={inputCls} style={inputStyle} />
+                        className={inputCls} style={fldStyle('customer_phone')} />
+                      {errors.customer_phone && <p className="text-red-400 text-xs mt-1">{errors.customer_phone}</p>}
                     </div>
+                  </div>
+
+                  {/* Linha 2: E-mail + Modelo */}
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                         <Mail className="w-3 h-3 inline mr-1" /> E-mail
                       </label>
-                      <input required type="email" placeholder="seu@email.com"
+                      <input type="email" placeholder="seu@email.com"
                         value={customer.customer_email} onChange={(e) => set('customer_email', e.target.value)}
-                        className={inputCls} style={inputStyle} />
+                        className={inputCls} style={fldStyle('customer_email')} />
+                      {errors.customer_email && <p className="text-red-400 text-xs mt-1">{errors.customer_email}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                         <Car className="w-3 h-3 inline mr-1" /> Modelo do carro
                       </label>
-                      <input required type="text" placeholder="Ex: Toyota Corolla 2022"
+                      <input type="text" placeholder="Ex: Toyota Corolla 2022"
                         value={customer.vehicle_model} onChange={(e) => set('vehicle_model', e.target.value)}
-                        className={inputCls} style={inputStyle} />
+                        className={inputCls} style={fldStyle('vehicle_model')} />
+                      {errors.vehicle_model && <p className="text-red-400 text-xs mt-1">{errors.vehicle_model}</p>}
                     </div>
+                  </div>
+
+                  {/* Linha 3: Placa + CEP */}
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                         Placa <span className="font-normal text-slate-600 normal-case">(opcional)</span>
                       </label>
-                      <input type="text" placeholder="ABC-1234"
-                        value={customer.vehicle_plate} onChange={(e) => set('vehicle_plate', e.target.value.toUpperCase())}
-                        className={inputCls} style={inputStyle} />
+                      <input type="text" placeholder="ABC1D23"
+                        value={customer.vehicle_plate} onChange={(e) => set('vehicle_plate', e.target.value)}
+                        className={inputCls} style={fldStyle('vehicle_plate')} />
+                      {errors.vehicle_plate && <p className="text-red-400 text-xs mt-1">{errors.vehicle_plate}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                        <MapPin className="w-3 h-3 inline mr-1" /> CEP
+                      </label>
+                      <div className="relative">
+                        <input type="text" placeholder="00000-000"
+                          value={customer.zip_code} onChange={(e) => set('zip_code', e.target.value)}
+                          className={inputCls} style={fldStyle('zip_code')} />
+                        {fetchingCep && (
+                          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-blue-400" />
+                        )}
+                      </div>
+                      {cepError && <p className="text-red-400 text-xs mt-1">{cepError}</p>}
+                      {!cepError && errors.zip_code && <p className="text-red-400 text-xs mt-1">{errors.zip_code}</p>}
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                      <MapPin className="w-3 h-3 inline mr-1" /> Endereço
-                    </label>
-                    <input required type="text" placeholder="Rua, número, bairro, cidade"
-                      value={customer.address} onChange={(e) => set('address', e.target.value)}
-                      className={inputCls} style={inputStyle} />
+                  {/* Linha 4: Rua + Número */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                        Rua
+                      </label>
+                      <input type="text" placeholder="Nome da rua"
+                        value={customer.street} onChange={(e) => set('street', e.target.value)}
+                        className={inputCls} style={fldStyle('street')} />
+                      {errors.street && <p className="text-red-400 text-xs mt-1">{errors.street}</p>}
+                    </div>
+                    <div className="sm:w-36">
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                        Número
+                      </label>
+                      <input type="text" placeholder="123 ou S/N"
+                        value={customer.number} onChange={(e) => set('number', e.target.value)}
+                        className={inputCls} style={fldStyle('number')} />
+                      {errors.number && <p className="text-red-400 text-xs mt-1">{errors.number}</p>}
+                    </div>
                   </div>
+
+                  {/* Linha 5: Bairro + Cidade + Estado */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                        Bairro
+                      </label>
+                      <input type="text" placeholder="Bairro"
+                        value={customer.neighborhood} onChange={(e) => set('neighborhood', e.target.value)}
+                        className={inputCls} style={fldStyle('neighborhood')} />
+                      {errors.neighborhood && <p className="text-red-400 text-xs mt-1">{errors.neighborhood}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                        Cidade
+                      </label>
+                      <input type="text" placeholder="Cidade"
+                        value={customer.city} onChange={(e) => set('city', e.target.value)}
+                        className={inputCls} style={fldStyle('city')} />
+                      {errors.city && <p className="text-red-400 text-xs mt-1">{errors.city}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                        Estado
+                      </label>
+                      <input type="text" placeholder="UF" maxLength={2}
+                        value={customer.state} onChange={(e) => set('state', e.target.value.toUpperCase())}
+                        className={inputCls} style={fldStyle('state')} />
+                      {errors.state && <p className="text-red-400 text-xs mt-1">{errors.state}</p>}
+                    </div>
+                  </div>
+
+                  {/* Complemento */}
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                       Complemento <span className="font-normal text-slate-600 normal-case">(opcional)</span>
@@ -574,6 +821,8 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                       value={customer.address_complement} onChange={(e) => set('address_complement', e.target.value)}
                       className={inputCls} style={inputStyle} />
                   </div>
+
+                  {/* Observações */}
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
                       <FileText className="w-3 h-3 inline mr-1" /> Observações <span className="font-normal text-slate-600 normal-case">(opcional)</span>
@@ -583,6 +832,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                       className={`${inputCls} resize-none`} style={inputStyle} />
                   </div>
 
+                  {/* Pagamento */}
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
                       <CreditCard className="w-3 h-3 inline mr-1" /> Pagamento
@@ -623,7 +873,7 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                   <button onClick={() => setStep(3)} className="flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 mb-4 transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Voltar
                   </button>
-                  <h2 className="text-2xl font-extrabold text-white">Confirmar agendamento</h2>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">Confirmar agendamento</h2>
                   <p className="text-slate-400 text-sm mt-1">Verifique os detalhes antes de finalizar</p>
                 </div>
 
@@ -673,13 +923,26 @@ export const CompanyBookingPage = ({ user, profile }: Props) => {
                     { label: 'WhatsApp', val: customer.customer_phone },
                     { label: 'E-mail', val: customer.customer_email },
                     { label: 'Veículo', val: `${customer.vehicle_model}${customer.vehicle_plate ? ` — ${customer.vehicle_plate}` : ''}` },
-                    { label: 'Endereço', val: `${customer.address}${customer.address_complement ? `, ${customer.address_complement}` : ''}` },
                   ].map(({ label, val }) => (
                     <div key={label} className="flex gap-2">
                       <span className="text-slate-500 w-20 flex-shrink-0">{label}:</span>
                       <span className="text-slate-300 font-medium">{val || '—'}</span>
                     </div>
                   ))}
+                </div>
+
+                {/* Address */}
+                <div className="p-5 rounded-2xl text-sm" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Endereço</p>
+                  <p className="text-slate-300 font-medium">{customer.street}, {customer.number}</p>
+                  <p className="text-slate-500 mt-0.5">{customer.neighborhood} — {customer.city}, {customer.state}</p>
+                  <p className="text-slate-500">{customer.zip_code}</p>
+                  {customer.address_complement && (
+                    <p className="text-slate-500 mt-1">{customer.address_complement}</p>
+                  )}
+                  {customer.notes && (
+                    <p className="text-slate-500 mt-1 italic">"{customer.notes}"</p>
+                  )}
                 </div>
 
                 <button

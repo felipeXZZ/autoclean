@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   Star, MapPin, Clock, MessageCircle, ChevronRight,
@@ -32,6 +32,7 @@ function fmtDuration(m: number) {
 
 export const CompanyPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate  = useNavigate();
   const { user } = useAuth();
   const [company, setCompany]   = useState<Company | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -104,33 +105,55 @@ export const CompanyPage = () => {
   return (
     <div style={{ background: '#060b18', minHeight: '100vh' }}>
 
-      {/* ── Hero ── */}
+      {/* ── Cover Banner ── */}
       <div
-        className="relative pt-24 pb-16 overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #060b18 0%, #091428 60%, #060b18 100%)' }}>
+        className="relative w-full overflow-hidden h-44 sm:h-56 lg:h-72"
+        style={{
+          background: company.cover_url
+            ? `url(${company.cover_url}) center/cover no-repeat`
+            : 'linear-gradient(160deg, #0d1b3e 0%, #091428 60%, #0d1b3e 100%)',
+        }}
+      >
+        {/* bottom fade into page bg */}
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-            backgroundSize: '64px 64px',
-          }} />
+          style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(6,11,24,0.95) 100%)' }}
+        />
+        {/* subtle grid decoration when no cover */}
+        {!company.cover_url && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+              backgroundSize: '64px 64px',
+            }}
+          />
+        )}
+      </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+      {/* ── Hero content (overlaps banner) ── */}
+      <div className="relative z-10 -mt-14 sm:-mt-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
-            {/* Avatar */}
+            {/* Avatar overlapping banner */}
             <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
-              style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', boxShadow: '0 0 40px rgba(37,99,235,0.4)' }}>
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center mb-4 sm:mb-5 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #2563eb, #4f46e5)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.7)',
+                border: '3px solid #000',
+              }}
+            >
               {company.logo_url
-                ? <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover rounded-2xl" />
-                : <Building2 className="w-10 h-10 text-white" />}
+                ? <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
+                : <Building2 className="w-12 h-12 text-white" />}
             </div>
 
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-3 tracking-tight">{company.name}</h1>
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-3 tracking-tight">{company.name}</h1>
 
             {company.description && (
-              <p className="text-lg text-slate-400 max-w-2xl mb-5 leading-relaxed">{company.description}</p>
+              <p className="text-base sm:text-lg text-slate-400 max-w-2xl mb-4 sm:mb-5 leading-relaxed">{company.description}</p>
             )}
 
             {/* Tags */}
@@ -220,17 +243,26 @@ export const CompanyPage = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.05, duration: 0.4 }}
-                        className="overflow-hidden rounded-2xl"
+                        onClick={() => navigate(`/empresa/${slug}/agendar`, {
+                          state: { preSelected: { id: svc.id, name: svc.name, price: svc.price, duration_minutes: svc.duration_minutes } },
+                        })}
+                        className="overflow-hidden rounded-2xl cursor-pointer transition-all hover:ring-1 hover:ring-blue-500/40 hover:scale-[1.01]"
                         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                        {svc.image_url && (
-                          <div className="w-full h-40 overflow-hidden">
-                            <img
-                              src={svc.image_url}
-                              alt={svc.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
+                        <div className="w-full h-40 overflow-hidden flex-shrink-0">
+                          {svc.image_url
+                            ? <img src={svc.image_url} alt={svc.name} className="w-full h-full object-cover" />
+                            : (
+                              <div
+                                className="w-full h-full flex items-center justify-center"
+                                style={{ background: `linear-gradient(135deg, ${(CAT_COLOR[svc.category ?? ''] ?? CAT_COLOR.Geral).bg.replace('0.1', '0.18')} 0%, rgba(255,255,255,0.03) 100%)` }}
+                              >
+                                <span className="text-4xl font-black opacity-10 select-none" style={{ color: (CAT_COLOR[svc.category ?? ''] ?? CAT_COLOR.Geral).text }}>
+                                  {svc.name[0]?.toUpperCase()}
+                                </span>
+                              </div>
+                            )
+                          }
+                        </div>
                         <div className="flex items-start justify-between gap-4 p-5">
                           <div className="flex-1 min-w-0">
                             <p className="font-bold text-white mb-1">{svc.name}</p>
@@ -242,7 +274,12 @@ export const CompanyPage = () => {
                               <span className="text-xs text-slate-500">{fmtDuration(svc.duration_minutes)}</span>
                             </div>
                           </div>
-                          <p className="text-lg font-black text-white flex-shrink-0">{fmtPrice(svc.price)}</p>
+                          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                            <p className="text-lg font-black text-white">{fmtPrice(svc.price)}</p>
+                            <span className="text-xs font-bold text-blue-400 flex items-center gap-0.5">
+                              Agendar <ChevronRight className="w-3 h-3" />
+                            </span>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
@@ -345,7 +382,7 @@ export const CompanyPage = () => {
               background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(99,102,241,0.08))',
               border: '1px solid rgba(37,99,235,0.2)',
             }}>
-            <h3 className="text-3xl font-extrabold text-white mb-3">Pronto para agendar?</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">Pronto para agendar?</h3>
             <p className="text-slate-400 mb-8">Escolha o serviço e o melhor horário para você.</p>
             <Link
               to={`/empresa/${slug}/agendar`}

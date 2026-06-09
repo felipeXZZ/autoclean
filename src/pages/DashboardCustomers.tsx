@@ -35,18 +35,18 @@ export const DashboardCustomers = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
         {[
-          { icon: Users,    label: 'Total de clientes', value: customers.length,  color: '#60a5fa' },
-          { icon: Calendar, label: 'Agendamentos',       value: customers.reduce((s, c) => s + c.total_appointments, 0), color: '#a78bfa' },
-          { icon: DollarSign, label: 'Receita realizada', value: customers.reduce((s, c) => s + c.total_spent, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), color: '#34d399' },
+          { icon: Users,    label: 'Clientes',   value: customers.length,  color: '#60a5fa' },
+          { icon: Calendar, label: 'Agend.',      value: customers.reduce((s, c) => s + c.total_appointments, 0), color: '#a78bfa' },
+          { icon: DollarSign, label: 'Receita',   value: customers.reduce((s, c) => s + c.total_spent, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), color: '#34d399' },
         ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="p-4 rounded-2xl" style={cardStyle}>
-            <div className="flex items-center gap-2 mb-2">
-              <Icon className="w-4 h-4" style={{ color }} />
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+          <div key={label} className="p-3 sm:p-4 rounded-2xl" style={cardStyle}>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">{label}</p>
             </div>
-            <p className="text-2xl font-black text-white">{value}</p>
+            <p className="text-lg sm:text-2xl font-black text-white truncate">{value}</p>
           </div>
         ))}
       </div>

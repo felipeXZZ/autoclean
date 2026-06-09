@@ -90,23 +90,25 @@ export const DashboardAppointments = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <div className="relative flex-1 min-w-48">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-2 mb-4">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
             type="text" placeholder="Buscar por nome, telefone, veículo..."
             value={search} onChange={(e) => setSearch(e.target.value)}
             className={`${inputCls} w-full pl-9`} style={inputStyle} />
         </div>
-        <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
-          className={inputCls} style={inputStyle} />
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-            className={`${inputCls} pl-9 pr-3`} style={inputStyle}>
-            <option value="all">Todos os status</option>
-            {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+        <div className="flex gap-2">
+          <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
+            className={`${inputCls} flex-1 sm:flex-none`} style={inputStyle} />
+          <div className="relative flex-1 sm:flex-none">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+              className={`${inputCls} w-full pl-9 pr-3`} style={inputStyle}>
+              <option value="all">Todos os status</option>
+              {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
         </div>
       </div>
 

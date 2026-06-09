@@ -282,58 +282,65 @@ export const DashboardServices = () => {
       ) : (
         <div className="space-y-2">
           {services.map((svc) => (
-            <div key={svc.id} className="flex items-center gap-4 p-4 rounded-2xl" style={cardStyle}>
+            <div key={svc.id} className="flex items-center gap-3 p-4 rounded-2xl" style={cardStyle}>
               {/* Service image */}
               {svc.image_url ? (
-                <img src={svc.image_url} alt={svc.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                <img src={svc.image_url} alt={svc.name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover flex-shrink-0" />
               ) : (
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(255,255,255,0.04)' }}>
-                  <ImageIcon className="w-6 h-6 text-slate-700" />
+                  <ImageIcon className="w-5 h-5 text-slate-700" />
                 </div>
               )}
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                  <p className="font-bold text-white text-sm">{svc.name}</p>
-                  {svc.is_featured && <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />}
-                  <span className="text-xs px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}>
-                    {svc.category}
-                  </span>
-                  {!svc.is_active && (
-                    <span className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: 'rgba(100,116,139,0.1)', color: '#64748b' }}>
-                      Inativo
-                    </span>
-                  )}
+                {/* Row 1: name + tags + price */}
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                      <p className="font-bold text-white text-sm">{svc.name}</p>
+                      {svc.is_featured && <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 flex-shrink-0" />}
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-xs px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}>
+                        {svc.category}
+                      </span>
+                      {!svc.is_active && (
+                        <span className="text-xs px-2 py-0.5 rounded-full"
+                          style={{ background: 'rgba(100,116,139,0.1)', color: '#64748b' }}>
+                          Inativo
+                        </span>
+                      )}
+                    </div>
+                    {svc.description && <p className="text-xs text-slate-500 truncate mt-0.5">{svc.description}</p>}
+                    <p className="text-xs text-slate-600 mt-0.5">{svc.duration_minutes} min</p>
+                  </div>
+                  <p className="text-sm font-black text-white flex-shrink-0">
+                    {Number(svc.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </p>
                 </div>
-                {svc.description && <p className="text-xs text-slate-500 truncate">{svc.description}</p>}
-                <p className="text-xs text-slate-600 mt-0.5">{svc.duration_minutes} min</p>
-              </div>
-
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <p className="text-base font-black text-white">
-                  {Number(svc.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                </p>
-                <button onClick={() => toggleFeatured(svc)} title="Destaque"
-                  className="p-2 rounded-lg transition-colors hover:bg-yellow-500/10">
-                  <Star className={`w-4 h-4 ${svc.is_featured ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}`} />
-                </button>
-                <button onClick={() => toggleActive(svc)} title={svc.is_active ? 'Desativar' : 'Ativar'}
-                  className="p-1.5 rounded-lg transition-colors hover:bg-white/5">
-                  {svc.is_active
-                    ? <ToggleRight className="w-5 h-5 text-green-400" />
-                    : <ToggleLeft className="w-5 h-5 text-slate-600" />}
-                </button>
-                <button onClick={() => openForm(svc)}
-                  className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors">
-                  <Edit3 className="w-4 h-4" />
-                </button>
-                <button onClick={() => del(svc.id)}
-                  className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {/* Row 2: action buttons */}
+                <div className="flex items-center gap-0.5 justify-end">
+                  <button onClick={() => toggleFeatured(svc)} title="Destaque"
+                    className="p-1.5 rounded-lg transition-colors hover:bg-yellow-500/10">
+                    <Star className={`w-4 h-4 ${svc.is_featured ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}`} />
+                  </button>
+                  <button onClick={() => toggleActive(svc)} title={svc.is_active ? 'Desativar' : 'Ativar'}
+                    className="p-1.5 rounded-lg transition-colors hover:bg-white/5">
+                    {svc.is_active
+                      ? <ToggleRight className="w-5 h-5 text-green-400" />
+                      : <ToggleLeft className="w-5 h-5 text-slate-600" />}
+                  </button>
+                  <button onClick={() => openForm(svc)}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors">
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => del(svc.id)}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

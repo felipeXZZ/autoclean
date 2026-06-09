@@ -99,7 +99,7 @@ export async function createAppointment(input: CreateAppointmentInput): Promise<
 export async function getUserAppointments(userId: string): Promise<Appointment[]> {
   const { data, error } = await supabase
     .from('appointments')
-    .select('*, appointment_services(*)')
+    .select('*, appointment_services(*), companies(id, name, whatsapp, phone)')
     .eq('user_id', userId)
     .order('appointment_date', { ascending: false })
     .order('appointment_time', { ascending: false });

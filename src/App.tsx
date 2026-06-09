@@ -11,6 +11,7 @@ import { AnimatePresence } from 'motion/react';
 import { Car } from 'lucide-react';
 
 import { useAuth } from './hooks/useAuth';
+import { AccountModeProvider, useAccountMode } from './contexts/AccountModeContext';
 import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
@@ -39,6 +40,18 @@ const ScrollToTop = () => {
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 };
+
+// Auto-switches to company mode when entering /dashboard, and back to client on sign-out
+function AccountModeSync({ isCompanyOwner }: { isCompanyOwner: boolean }) {
+  const { switchToCompanyMode } = useAccountMode();
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (isCompanyOwner && pathname.startsWith('/dashboard')) {
+      switchToCompanyMode();
+    }
+  }, [pathname, isCompanyOwner, switchToCompanyMode]);
+  return null;
+}
 
 const Footer = () => (
   <footer style={{ background: '#03060f', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
@@ -154,6 +167,8 @@ function AppContent() {
   }
 
   return (
+    <AccountModeProvider isCompanyOwner={isCompanyOwner}>
+      <AccountModeSync isCompanyOwner={isCompanyOwner} />
     <div className="min-h-screen text-slate-900 dark:text-white">
       <Toaster position="bottom-right" toastOptions={{ duration: 4000 }} />
 
@@ -221,6 +236,7 @@ function AppContent() {
 
       {!isFullscreen && <Footer />}
     </div>
+    </AccountModeProvider>
   );
 }
 

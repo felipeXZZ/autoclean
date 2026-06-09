@@ -57,7 +57,7 @@ export const Home = () => {
 
       {/* ── HERO ── */}
       <section
-        className="relative min-h-[92vh] flex items-center pt-20 pb-16 overflow-hidden"
+        className="relative min-h-[70vh] sm:min-h-[88vh] flex items-center pt-24 pb-12 sm:pb-16 overflow-hidden"
         style={{ background: 'linear-gradient(160deg, #040c1a 0%, #071628 60%, #040d1e 100%)' }}
       >
         <div className="absolute inset-0 pointer-events-none">
@@ -226,11 +226,11 @@ export const Home = () => {
       )}
 
       {/* ── HOW IT WORKS ── */}
-      <section className="py-20 px-4 sm:px-6" style={{ background: '#050e1c', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <section className="py-14 sm:py-20 px-4 sm:px-6" style={{ background: '#050e1c', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10 sm:mb-12">
             <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">Simples assim</p>
-            <h2 className="text-3xl font-extrabold text-white">Agende do seu jeito, em qualquer lugar</h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Agende do seu jeito, em qualquer lugar</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -260,10 +260,10 @@ export const Home = () => {
       <section className="py-20 px-4 sm:px-6 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #05091a 0%, #0a1e4a 55%, #060b18 100%)' }}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '60%', height: '70%', background: 'radial-gradient(ellipse at center, rgba(37,99,235,0.15) 0%, transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
         <div className="max-w-5xl mx-auto relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
               <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Para donos de estética</p>
-              <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-5 leading-tight">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
                 Transforme sua estética automotiva com o AutoClean
               </h2>
               <p className="text-slate-400 leading-relaxed mb-8">
@@ -287,7 +287,7 @@ export const Home = () => {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-3">
               {[
                 { icon: Smartphone,  label: 'Agenda online 24h',   color: '#60a5fa' },
                 { icon: Users,       label: 'Clientes organizados', color: '#34d399' },

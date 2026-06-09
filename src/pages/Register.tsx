@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Car, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -13,6 +13,8 @@ export const Register = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = (location.state as { from?: string } | null)?.from;
   const [searchParams] = useSearchParams();
   const isEmpresaFlow = searchParams.get('empresa') === '1';
   const { signUp } = useAuth();
@@ -28,7 +30,7 @@ export const Register = () => {
       const { error } = await signUp(email, password, name.trim());
       if (error) throw error;
       toast.success('Conta criada com sucesso!');
-      navigate(isEmpresaFlow ? '/onboarding' : '/');
+      navigate(isEmpresaFlow ? '/onboarding' : (redirectTo ?? '/'), { replace: true });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('User already registered')) toast.error('Este e-mail já possui conta.');

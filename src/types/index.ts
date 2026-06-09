@@ -99,6 +99,12 @@ export interface Appointment {
   created_at: string;
   updated_at: string;
   appointment_services?: AppointmentService[];
+  companies?: {
+    id: string;
+    name: string;
+    whatsapp?: string;
+    phone?: string;
+  };
 }
 
 export interface BusinessHours {

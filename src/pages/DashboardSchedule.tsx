@@ -118,18 +118,20 @@ export const DashboardSchedule = () => {
                 const h = hours.find((x) => x.weekday === weekday);
                 const active = h?.is_active ?? false;
                 return (
-                  <div key={weekday} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                    {/* Toggle */}
-                    <button
-                      onClick={() => setHourField(weekday, 'is_active', !active)}
-                      className={`flex-shrink-0 w-10 h-5 rounded-full transition-all relative ${active ? 'bg-blue-600' : 'bg-slate-700'}`}>
-                      <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${active ? 'left-5' : 'left-0.5'}`} />
-                    </button>
-
-                    <p className="w-20 font-bold text-white text-sm flex-shrink-0">{name}</p>
+                  <div key={weekday} className="flex items-start gap-2 p-3 rounded-xl flex-wrap sm:flex-nowrap sm:items-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                    {/* Toggle + day name */}
+                    <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                      <button
+                        onClick={() => setHourField(weekday, 'is_active', !active)}
+                        className={`flex-shrink-0 w-10 h-5 rounded-full transition-all relative ${active ? 'bg-blue-600' : 'bg-slate-700'}`}>
+                        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${active ? 'left-5' : 'left-0.5'}`} />
+                      </button>
+                      <p className="w-16 font-bold text-white text-sm flex-shrink-0">{name}</p>
+                      {!active && <p className="text-slate-500 text-sm sm:hidden">Fechado</p>}
+                    </div>
 
                     {active ? (
-                      <div className="flex items-center gap-2 flex-1 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap flex-1">
                         <input type="time" value={h?.start_time?.slice(0, 5) ?? '08:00'}
                           onChange={(e) => setHourField(weekday, 'start_time', e.target.value)}
                           className={inputCls} style={inputStyle} />
@@ -150,7 +152,7 @@ export const DashboardSchedule = () => {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-slate-500 text-sm">Fechado</p>
+                      <p className="text-slate-500 text-sm hidden sm:block">Fechado</p>
                     )}
                   </div>
                 );

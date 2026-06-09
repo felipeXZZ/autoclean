@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import type { DashboardContext } from '../components/dashboard/DashboardLayout';
 import { updateCompany } from '../services/companyService';
+import { CompanyImageUploader } from '../components/dashboard/CompanyImageUploader';
 import type { Company } from '../types';
 
 const inputCls = 'w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none transition-colors placeholder-slate-500 focus:border-blue-500';
@@ -95,22 +96,26 @@ export const DashboardCompany = () => {
       {/* Public link card */}
       <motion.div
         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4 p-4 rounded-2xl mb-6"
+        className="p-4 rounded-2xl mb-6"
         style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)' }}>
-        <Globe className="w-5 h-5 text-blue-400 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-0.5">Link público da empresa</p>
-          <p className="text-white font-bold text-sm truncate">{publicLink}</p>
+        <div className="flex items-center gap-3 mb-3">
+          <Globe className="w-5 h-5 text-blue-400 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-0.5">Link público da empresa</p>
+            <p className="text-white font-bold text-sm truncate">{publicLink}</p>
+          </div>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-2">
           <button
             onClick={() => { navigator.clipboard.writeText(publicLink); toast.success('Link copiado!'); }}
-            className="flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-all">
-            <Copy className="w-3.5 h-3.5" /> Copiar
+            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-500/10 transition-all"
+            style={{ border: '1px solid rgba(37,99,235,0.2)' }}>
+            <Copy className="w-3.5 h-3.5" /> Copiar link
           </button>
           <Link to={`/empresa/${company.slug}`} target="_blank"
-            className="flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-all">
-            <ExternalLink className="w-3.5 h-3.5" /> Visitar
+            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-500/10 transition-all"
+            style={{ border: '1px solid rgba(37,99,235,0.2)' }}>
+            <ExternalLink className="w-3.5 h-3.5" /> Visitar página
           </Link>
         </div>
       </motion.div>
@@ -128,6 +133,12 @@ export const DashboardCompany = () => {
         <span className="text-xs text-slate-500">
           {company.is_active ? '● Empresa ativa' : '○ Empresa inativa'}
         </span>
+      </div>
+
+      {/* Identity section */}
+      <div className="mb-6">
+        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Identidade da estética</p>
+        <CompanyImageUploader company={company} onUpdate={refreshCompany} />
       </div>
 
       {/* Form */}

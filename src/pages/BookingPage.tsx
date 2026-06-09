@@ -12,6 +12,10 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { useServices } from '../hooks/useServices';
 import { getAvailableSlots, createAppointment } from '../services/appointmentService';
 import { cn } from '../lib/utils';
+import {
+  onlyNumbers, formatPhoneBR, formatCep, formatPlate,
+  isValidPhoneBR, isValidPlate, fetchAddressByCep,
+} from '../lib/bookingUtils';
 import type { Service, Profile, PaymentMethod } from '../types';
 
 interface BookingPageProps {
@@ -32,18 +36,23 @@ interface CustomerData {
   customer_phone: string;
   vehicle_model: string;
   vehicle_plate: string;
-  address: string;
+  zip_code: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  state: string;
   address_complement: string;
   notes: string;
   payment_method: PaymentMethod;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Lavagem:     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+  Lavagem:      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
   Higienização: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400',
-  Técnico:     'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
-  Polimento:   'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400',
-  Proteção:    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400',
+  Técnico:      'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
+  Polimento:    'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400',
+  Proteção:     'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400',
 };
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -92,21 +101,27 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
 
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
-
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [fetchingCep, setFetchingCep] = useState(false);
+  const [cepError, setCepError] = useState('');
 
   const [customer, setCustomer] = useState<CustomerData>({
     customer_name: profile?.full_name ?? '',
     customer_email: user?.email ?? '',
-    customer_phone: profile?.phone ?? '',
+    customer_phone: profile?.phone ? formatPhoneBR(profile.phone) : '',
     vehicle_model: '',
     vehicle_plate: '',
-    address: '',
+    zip_code: '',
+    street: '',
+    number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
     address_complement: '',
     notes: '',
     payment_method: 'local',
@@ -114,7 +129,6 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
 
   const [createdId, setCreatedId] = useState('');
 
-  // Pre-select service passed via navigation state
   useEffect(() => {
     const passed = location.state?.service as Service | undefined;
     if (passed) {
@@ -127,13 +141,12 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
     }
   }, [location.state]);
 
-  // Sync profile data when it loads
   useEffect(() => {
     if (profile) {
       setCustomer((prev) => ({
         ...prev,
         customer_name: prev.customer_name || profile.full_name,
-        customer_phone: prev.customer_phone || profile.phone || '',
+        customer_phone: prev.customer_phone || (profile.phone ? formatPhoneBR(profile.phone) : ''),
       }));
     }
     if (user?.email) {
@@ -141,7 +154,6 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
     }
   }, [profile, user]);
 
-  // Fetch available slots when date changes
   useEffect(() => {
     if (!date) { setAvailableSlots([]); setTime(''); return; }
     setLoadingSlots(true);
@@ -151,6 +163,26 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
       .catch(() => { toast.error('Erro ao buscar horários.'); setAvailableSlots([]); })
       .finally(() => setLoadingSlots(false));
   }, [date]);
+
+  useEffect(() => {
+    const digits = onlyNumbers(customer.zip_code);
+    if (digits.length !== 8) return;
+    setFetchingCep(true);
+    setCepError('');
+    fetchAddressByCep(digits)
+      .then((addr) => {
+        if (!addr) { setCepError('CEP não encontrado. Verifique e tente novamente.'); return; }
+        setCustomer((prev) => ({
+          ...prev,
+          street: addr.street || prev.street,
+          neighborhood: addr.neighborhood || prev.neighborhood,
+          city: addr.city || prev.city,
+          state: addr.state || prev.state,
+        }));
+      })
+      .catch(() => setCepError('Não foi possível buscar o CEP agora. Preencha o endereço manualmente.'))
+      .finally(() => setFetchingCep(false));
+  }, [customer.zip_code]);
 
   const totalPrice = selectedServices.reduce((s, svc) => s + svc.price, 0);
   const totalMinutes = selectedServices.reduce((s, svc) => s + svc.duration_minutes, 0);
@@ -167,15 +199,52 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
   }
 
   function handleCustomer(field: keyof CustomerData, value: string) {
-    setCustomer((prev) => ({ ...prev, [field]: value }));
+    if (field === 'zip_code') setCepError('');
+    setErrors((prev) => ({ ...prev, [field]: '' }));
+    let processed = value;
+    if (field === 'customer_phone') processed = formatPhoneBR(value);
+    else if (field === 'zip_code') processed = formatCep(value);
+    else if (field === 'vehicle_plate') processed = formatPlate(value);
+    setCustomer((prev) => ({ ...prev, [field]: processed }));
   }
+
+  function validateStep3(): boolean {
+    const e: Record<string, string> = {};
+    if (!customer.customer_name.trim()) e.customer_name = 'Nome obrigatório.';
+    if (!isValidPhoneBR(customer.customer_phone)) e.customer_phone = 'Informe um WhatsApp válido com DDD.';
+    if (!customer.customer_email.trim() || !/\S+@\S+\.\S+/.test(customer.customer_email)) {
+      e.customer_email = 'Informe um e-mail válido.';
+    }
+    if (!customer.vehicle_model.trim()) e.vehicle_model = 'Modelo do carro obrigatório.';
+    if (!isValidPlate(customer.vehicle_plate)) e.vehicle_plate = 'Informe uma placa válida com 7 caracteres.';
+    if (onlyNumbers(customer.zip_code).length !== 8) e.zip_code = 'CEP deve ter 8 dígitos.';
+    if (!customer.street.trim()) e.street = 'Rua obrigatória.';
+    if (!customer.number.trim()) e.number = 'Número obrigatório.';
+    if (!customer.neighborhood.trim()) e.neighborhood = 'Bairro obrigatório.';
+    if (!customer.city.trim()) e.city = 'Cidade obrigatória.';
+    if (!customer.state.trim()) e.state = 'Estado obrigatório.';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  const composedAddress = customer.street
+    ? `${customer.street}, ${customer.number} - ${customer.neighborhood}, ${customer.city} - ${customer.state}, ${customer.zip_code}`
+    : '';
 
   async function handleConfirm() {
     setSubmitting(true);
     try {
       const appointment = await createAppointment({
         company_id: '',
-        ...customer,
+        customer_name: customer.customer_name,
+        customer_email: customer.customer_email,
+        customer_phone: onlyNumbers(customer.customer_phone),
+        vehicle_model: customer.vehicle_model,
+        vehicle_plate: customer.vehicle_plate,
+        address: composedAddress,
+        address_complement: customer.address_complement,
+        notes: customer.notes,
+        payment_method: customer.payment_method,
         appointment_date: date,
         appointment_time: `${time}:00`,
         total_price: totalPrice,
@@ -198,14 +267,17 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
     `*Total:* R$ ${totalPrice}\n` +
     `*Data:* ${date}\n` +
     `*Horário:* ${time}\n` +
-    `*Endereço:* ${customer.address}`
+    `*Endereço:* ${composedAddress}`
   );
 
   const today = format(new Date(), 'yyyy-MM-dd');
 
-  // ──────────────────────────────────────────────────
-  // STEP 5: SUCCESS
-  // ──────────────────────────────────────────────────
+  const fieldCls = (field: string) => cn(
+    'w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all',
+    errors[field] ? 'border-red-500' : 'border-transparent'
+  );
+
+  // ── STEP 5: SUCCESS ──
   if (step === 5) {
     return (
       <motion.div
@@ -234,7 +306,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
             </div>
             <div className="flex gap-2 items-start">
               <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <span className="text-slate-700 dark:text-slate-300">{customer.address}</span>
+              <span className="text-slate-700 dark:text-slate-300">{composedAddress}</span>
             </div>
             <div className="flex gap-2 items-center">
               <CreditCard className="w-4 h-4 text-blue-600 flex-shrink-0" />
@@ -432,73 +504,159 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                 <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-1">Seus dados</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Preencha onde seu carro está e como entrar em contato</p>
 
-                <form onSubmit={(e) => { e.preventDefault(); setStep(4); }} className="space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); if (validateStep3()) setStep(4); }} className="space-y-4">
+
+                  {/* Linha 1: Nome + WhatsApp */}
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
                         <User className="w-3 h-3 inline mr-1" /> Nome completo
                       </label>
-                      <input required type="text" placeholder="Seu nome"
+                      <input type="text" placeholder="Seu nome"
                         value={customer.customer_name}
                         onChange={(e) => handleCustomer('customer_name', e.target.value)}
-                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all"
+                        className={fieldCls('customer_name')}
                       />
+                      {errors.customer_name && <p className="text-red-500 text-xs mt-1">{errors.customer_name}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
                         <Phone className="w-3 h-3 inline mr-1" /> WhatsApp
                       </label>
-                      <input required type="tel" placeholder="(11) 99999-9999"
+                      <input type="tel" placeholder="(11) 99999-9999"
                         value={customer.customer_phone}
                         onChange={(e) => handleCustomer('customer_phone', e.target.value)}
-                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all"
+                        className={fieldCls('customer_phone')}
                       />
+                      {errors.customer_phone && <p className="text-red-500 text-xs mt-1">{errors.customer_phone}</p>}
                     </div>
+                  </div>
+
+                  {/* Linha 2: E-mail + Modelo */}
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
                         <Mail className="w-3 h-3 inline mr-1" /> E-mail
                       </label>
-                      <input required type="email" placeholder="seu@email.com"
+                      <input type="email" placeholder="seu@email.com"
                         value={customer.customer_email}
                         onChange={(e) => handleCustomer('customer_email', e.target.value)}
-                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all"
+                        className={fieldCls('customer_email')}
                       />
+                      {errors.customer_email && <p className="text-red-500 text-xs mt-1">{errors.customer_email}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
                         <Car className="w-3 h-3 inline mr-1" /> Modelo do carro
                       </label>
-                      <input required type="text" placeholder="Ex: Toyota Corolla 2022"
+                      <input type="text" placeholder="Ex: Toyota Corolla 2022"
                         value={customer.vehicle_model}
                         onChange={(e) => handleCustomer('vehicle_model', e.target.value)}
-                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all"
+                        className={fieldCls('vehicle_model')}
                       />
+                      {errors.vehicle_model && <p className="text-red-500 text-xs mt-1">{errors.vehicle_model}</p>}
                     </div>
+                  </div>
+
+                  {/* Linha 3: Placa + CEP */}
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
                         Placa <span className="text-slate-300 dark:text-slate-600 font-medium normal-case">(opcional)</span>
                       </label>
-                      <input type="text" placeholder="ABC-1234"
+                      <input type="text" placeholder="ABC1D23"
                         value={customer.vehicle_plate}
-                        onChange={(e) => handleCustomer('vehicle_plate', e.target.value.toUpperCase())}
-                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all"
+                        onChange={(e) => handleCustomer('vehicle_plate', e.target.value)}
+                        className={fieldCls('vehicle_plate')}
                       />
+                      {errors.vehicle_plate && <p className="text-red-500 text-xs mt-1">{errors.vehicle_plate}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        <MapPin className="w-3 h-3 inline mr-1" /> CEP
+                      </label>
+                      <div className="relative">
+                        <input type="text" placeholder="00000-000"
+                          value={customer.zip_code}
+                          onChange={(e) => handleCustomer('zip_code', e.target.value)}
+                          className={fieldCls('zip_code')}
+                        />
+                        {fetchingCep && (
+                          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-blue-600" />
+                        )}
+                      </div>
+                      {cepError && <p className="text-red-500 text-xs mt-1">{cepError}</p>}
+                      {!cepError && errors.zip_code && <p className="text-red-500 text-xs mt-1">{errors.zip_code}</p>}
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      <MapPin className="w-3 h-3 inline mr-1" /> Endereço completo
-                    </label>
-                    <input required type="text" placeholder="Rua, número, bairro, cidade"
-                      value={customer.address}
-                      onChange={(e) => handleCustomer('address', e.target.value)}
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-xl focus:border-blue-600 outline-none text-slate-900 dark:text-white font-medium transition-all"
-                    />
+                  {/* Linha 4: Rua + Número */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        Rua
+                      </label>
+                      <input type="text" placeholder="Nome da rua"
+                        value={customer.street}
+                        onChange={(e) => handleCustomer('street', e.target.value)}
+                        className={fieldCls('street')}
+                      />
+                      {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street}</p>}
+                    </div>
+                    <div className="sm:w-36">
+                      <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        Número
+                      </label>
+                      <input type="text" placeholder="123 ou S/N"
+                        value={customer.number}
+                        onChange={(e) => handleCustomer('number', e.target.value)}
+                        className={fieldCls('number')}
+                      />
+                      {errors.number && <p className="text-red-500 text-xs mt-1">{errors.number}</p>}
+                    </div>
                   </div>
+
+                  {/* Linha 5: Bairro + Cidade + Estado */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        Bairro
+                      </label>
+                      <input type="text" placeholder="Bairro"
+                        value={customer.neighborhood}
+                        onChange={(e) => handleCustomer('neighborhood', e.target.value)}
+                        className={fieldCls('neighborhood')}
+                      />
+                      {errors.neighborhood && <p className="text-red-500 text-xs mt-1">{errors.neighborhood}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        Cidade
+                      </label>
+                      <input type="text" placeholder="Cidade"
+                        value={customer.city}
+                        onChange={(e) => handleCustomer('city', e.target.value)}
+                        className={fieldCls('city')}
+                      />
+                      {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        Estado
+                      </label>
+                      <input type="text" placeholder="UF" maxLength={2}
+                        value={customer.state}
+                        onChange={(e) => handleCustomer('state', e.target.value.toUpperCase())}
+                        className={fieldCls('state')}
+                      />
+                      {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+                    </div>
+                  </div>
+
+                  {/* Complemento */}
                   <div>
                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Complemento / Referência <span className="text-slate-300 dark:text-slate-600 font-medium normal-case">(opcional)</span>
+                      Complemento <span className="text-slate-300 dark:text-slate-600 font-medium normal-case">(opcional)</span>
                     </label>
                     <input type="text" placeholder="Apto, bloco, portaria, ponto de referência"
                       value={customer.address_complement}
@@ -507,6 +665,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                     />
                   </div>
 
+                  {/* Observações */}
                   <div>
                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
                       <FileText className="w-3 h-3 inline mr-1" /> Observações <span className="text-slate-300 dark:text-slate-600 font-medium normal-case">(opcional)</span>
@@ -518,6 +677,7 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                     />
                   </div>
 
+                  {/* Pagamento */}
                   <div>
                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">
                       <CreditCard className="w-3 h-3 inline mr-1" /> Forma de Pagamento
@@ -620,12 +780,18 @@ export const BookingPage = ({ user, profile }: BookingPageProps) => {
                   {/* Address */}
                   <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 text-sm">
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Endereço</p>
-                    <p className="font-medium text-slate-800 dark:text-slate-200">{customer.address}</p>
+                    <p className="font-medium text-slate-800 dark:text-slate-200">
+                      {customer.street}, {customer.number}
+                    </p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-0.5">
+                      {customer.neighborhood} — {customer.city}, {customer.state}
+                    </p>
+                    <p className="text-slate-500 dark:text-slate-400">{customer.zip_code}</p>
                     {customer.address_complement && (
-                      <p className="text-slate-500 mt-1">{customer.address_complement}</p>
+                      <p className="text-slate-500 dark:text-slate-400 mt-1">{customer.address_complement}</p>
                     )}
                     {customer.notes && (
-                      <p className="text-slate-500 mt-1 italic">"{customer.notes}"</p>
+                      <p className="text-slate-500 dark:text-slate-400 mt-1 italic">"{customer.notes}"</p>
                     )}
                   </div>
                 </div>

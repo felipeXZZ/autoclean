@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Car, Mail, Lock, User, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -14,6 +14,8 @@ export const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = (location.state as { from?: string } | null)?.from ?? '/';
   const { signIn, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,12 +27,12 @@ export const Login = () => {
         const { error } = await signUp(email, password, name.trim());
         if (error) throw error;
         toast.success('Conta criada com sucesso!');
-        navigate('/');
+        navigate(redirectTo, { replace: true });
       } else {
         const { error } = await signIn(email, password);
         if (error) throw error;
         toast.success('Bem-vindo de volta!');
-        navigate('/');
+        navigate(redirectTo, { replace: true });
       }
     } catch (err: any) {
       const msg = err?.message ?? '';
